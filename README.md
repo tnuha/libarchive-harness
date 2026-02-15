@@ -1,3 +1,41 @@
+# This is an AFL++ harness for libarchive
+
+As practice using AFL++, this repository is my own
+harnessing of libarchive.
+
+## Added files
+
+Ultimately, everything in the `fuzzing` subdirectory.
+The contents are self-explanatory with some
+elementary knowledge of software fuzz testing.
+
+```
+./fuzzing/
+├── build-harnessed-target.sh
+├── corpus
+│   ├── seed0
+│   ├── seed1
+│   └── seed2
+├── harness.c
+└── run-fuzzer.sh
+```
+
+## Usage
+
+Compilation of libarchive prior to fuzzing
+is ultimately detrimental and not recommended
+as it will produce a set of binaries that are not
+instrumented with the configuration for running the harness.
+Any other compilation of libarchive prior to building
+with the provided harness code is therefore unnecessary.
+
+From the top-level directory of this project,
+
+1. Build the harnessed target with `./fuzzing/build-harnessed-target.sh`
+2. Start fuzzing the target with `./fuzzing/run-fuzzer.sh`
+
+# The rest of this document is from the original libarchive readme
+
 # Welcome to libarchive!
 
 The libarchive project develops a portable, efficient C library that
