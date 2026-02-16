@@ -68,6 +68,7 @@
 #include <unistd.h>
 
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
+  // return 1;
   struct archive *a;
   struct archive_entry *entry;
   int r;
@@ -75,7 +76,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
   a = archive_read_new();
   // archive_read_support_filter_all(a);
   // archive_read_support_format_all(a);
-  archive_read_support_format_raw(a);
+  // archive_read_support_format_raw(a);
   archive_read_support_format_tar(a);
 
   if (ARCHIVE_OK !=

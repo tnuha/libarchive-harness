@@ -34,6 +34,8 @@ From the top-level directory of this project,
 1. Build the harnessed target with `./fuzzing/build-harnessed-target.sh`
 2. Start fuzzing the target with `./fuzzing/run-fuzzer.sh`
 
+The result should be in `./fuzzing/out`.
+
 # The rest of this document is from the original libarchive readme
 
 # Welcome to libarchive!
