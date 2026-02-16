@@ -5,8 +5,7 @@ sleep 0.5s
 
 AFLCC=afl-clang-fast
 AFLCXX=afl-clang-fast++
-# FLAGS='-fsanitize=address -g --afl-llvm'
-FLAGS=
+FLAGS='-g -fsanitize=address'
 
 # -CC=$AFLCC CXX=$AFLCXX MAKEFLAGS=$FLAGS \
 # -    ./configure --disable-shared
@@ -18,15 +17,15 @@ FLAGS=
 #     CFLAGS='$FLAGS' CXXFLAGS='$FLAGS' \
 #     --enable-static
 
+export CFLAGS=$FLAGS
+export CXXFLAGS=$FLAGS
+
 ./build/autogen.sh
 echo "- configuring build system"
 export CC=$AFLCC
 export CXX=$AFLCXX
 
 ./configure --enable-static
-
-export CFLAGS=$FLAGS
-export CXXFLAGS=$FLAGS
 
 echo "- building libarchive"
 make -j$(nproc)
