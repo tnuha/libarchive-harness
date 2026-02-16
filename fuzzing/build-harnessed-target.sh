@@ -5,7 +5,8 @@ sleep 0.5s
 
 AFLCC=afl-clang-fast
 AFLCXX=afl-clang-fast++
-FLAGS='-g -fsanitize=address'
+# FLAGS='-g -fsanitize=address'
+FLAGS=
 
 # -CC=$AFLCC CXX=$AFLCXX MAKEFLAGS=$FLAGS \
 # -    ./configure --disable-shared

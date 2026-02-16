@@ -76,14 +76,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
   a = archive_read_new();
   // archive_read_support_filter_all(a);
   // archive_read_support_format_all(a);
-  // archive_read_support_format_raw(a);
   archive_read_support_format_tar(a);
-
-  if (ARCHIVE_OK !=
-      archive_read_set_options(
-          a, "zip:ignorecrc32,tar:read_concatenated_archives,tar:mac-ext")) {
-    return 1;
-  }
 
   if (ARCHIVE_OK != archive_read_open_memory(a, data, size)) {
     return 1;
