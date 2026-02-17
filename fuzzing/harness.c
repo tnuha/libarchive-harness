@@ -67,34 +67,50 @@
 #include <string.h>
 #include <unistd.h>
 
+// 16KB
+#define WRITE_MEM_LIMIT 1 << 14
+
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
-  // return 1;
   struct archive *a;
   struct archive_entry *entry;
+  size_t out_used;
   int r;
 
-  a = archive_read_new();
-  // archive_read_support_filter_all(a);
-  // archive_read_support_format_all(a);
-  archive_read_support_format_tar(a);
+  char written[WRITE_MEM_LIMIT];
 
-  if (ARCHIVE_OK != archive_read_open_memory(a, data, size)) {
+  a = archive_read_new();
+  archive_read_support_format_tar(a);
+  archive_read_support_format_cpio(a);
+  archive_read_support_format_lha(a);
+  archive_read_support_format_ar(a);
+  archive_read_support_format_mtree(a);
+
+  if (ARCHIVE_OK != archive_read_open_memory(a, data, size))
     return 1;
-  }
 
   for (;;) {
     r = archive_read_next_header(a, &entry);
     if (r == ARCHIVE_EOF)
       break;
     if (r != ARCHIVE_OK)
-      // fail("archive_read_next_header()", archive_error_string(a), 1);
       return 1;
   }
 
-  // archive_read_has_encrypted_entries(a);
-  // archive_read_format_capabilities(a);
-  // archive_file_count(a);
-  // archive_seek_data(a, 0, SEEK_SET);
+  // do a single write to the memory buffer
+  // should be at most WRITE_MEM_LIMIT bytes used
+  //
+  // referenced:
+  // https://manpages.debian.org/jessie/libarchive-dev/archive_write_open.3.en.html
+  // A convenience form of archive_write_open() that accepts a pointer to a
+  // block of memory that will receive the archive. The final size_t * argument
+  // points to a variable that will be updated after each write to reflect how
+  // much of the buffer is currently in use. You should be careful to ensure
+  // that this variable remains allocated until after the archive is closed.
+  r = archive_write_open_memory(a, written, WRITE_MEM_LIMIT, &out_used);
+  if (out_used > WRITE_MEM_LIMIT)
+    return 1;
+  if (r != ARCHIVE_OK)
+    return 1;
 
   if (archive_read_free(a) != ARCHIVE_OK)
     return 1;

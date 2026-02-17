@@ -6,7 +6,8 @@ sleep 0.5s
 AFLCC=afl-clang-fast
 AFLCXX=afl-clang-fast++
 # FLAGS='-g -fsanitize=address'
-FLAGS=
+# FLAGS='fsanitize=undefined'
+FLAGS='-fsanitize=address,undefined -ggdb'
 
 # -CC=$AFLCC CXX=$AFLCXX MAKEFLAGS=$FLAGS \
 # -    ./configure --disable-shared
@@ -32,8 +33,8 @@ echo "- building libarchive"
 make -j$(nproc)
 
 echo "- building harness with target"
-$AFLCC -static ./fuzzing/harness.c ./.libs/libarchive.a \
-    $FLAGS -fsanitize=fuzzer \
+$AFLCC ./fuzzing/harness.c ./.libs/libarchive.a \
+    -fsanitize=fuzzer $FLAGS \
     -I ./libarchive \
     -o ./fuzzing/harness
 
