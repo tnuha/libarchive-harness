@@ -67,13 +67,15 @@
 #include <string.h>
 #include <unistd.h>
 
-// 16KB
-#define WRITE_MEM_LIMIT 1 << 14
+// 32KB
+#define WRITE_MEM_LIMIT 1 << 15
 
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
   struct archive *a;
   struct archive_entry *entry;
-  size_t out_used;
+  size_t out_used =
+      0; // unclear if the `outUsed` pointer param is added to in-place, or if
+         // it's assigned. Initializing to 0 is conservative.
   int r;
 
   char written[WRITE_MEM_LIMIT];
@@ -85,15 +87,37 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
   archive_read_support_format_ar(a);
   archive_read_support_format_mtree(a);
 
-  if (ARCHIVE_OK != archive_read_open_memory(a, data, size))
-    return 1;
+  if (ARCHIVE_OK != archive_read_open_memory(a, data, size)) {
+    archive_read_free(a);
+    return 0;
+  }
 
   for (;;) {
     r = archive_read_next_header(a, &entry);
     if (r == ARCHIVE_EOF)
       break;
-    if (r != ARCHIVE_OK)
-      return 1;
+    if (r != ARCHIVE_OK) {
+      archive_read_free(a);
+      return 0;
+    }
+
+    // link: https://linux.die.net/man/3/archive_entry
+    archive_entry_acl(entry);
+    archive_entry_atime(entry);
+    archive_entry_atime_nsec(entry);
+    archive_entry_dev(entry);
+    archive_entry_devmajor(entry);
+    archive_entry_devminor(entry);
+    archive_entry_dev_is_set(entry);
+    archive_entry_filetype(entry);
+    archive_entry_hardlink(entry);
+    archive_entry_ino(entry);
+    archive_entry_mode(entry);
+    archive_entry_mtime(entry);
+    archive_entry_mtime_nsec(entry);
+    archive_entry_nlink(entry);
+    archive_entry_pathname(entry);
+    archive_entry_pathname_w(entry);
   }
 
   // do a single write to the memory buffer
@@ -107,13 +131,17 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
   // much of the buffer is currently in use. You should be careful to ensure
   // that this variable remains allocated until after the archive is closed.
   r = archive_write_open_memory(a, written, WRITE_MEM_LIMIT, &out_used);
-  if (out_used > WRITE_MEM_LIMIT)
+  if (out_used > WRITE_MEM_LIMIT) {
+    archive_read_free(a);
     return 1;
-  if (r != ARCHIVE_OK)
+  }
+  if (r != ARCHIVE_OK) {
+    archive_read_free(a);
     return 1;
+  }
 
-  if (archive_read_free(a) != ARCHIVE_OK)
-    return 1;
+  archive_read_close(a);
+  archive_read_free(a);
 
   // no issues, huzzah
   return 0;
