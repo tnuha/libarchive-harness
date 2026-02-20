@@ -7,30 +7,22 @@ AFLCC=afl-clang-fast
 AFLCXX=afl-clang-fast++
 # FLAGS='-g -fsanitize=address'
 # FLAGS='fsanitize=undefined'
-FLAGS='-fsanitize=address,undefined -ggdb'
-
-# -CC=$AFLCC CXX=$AFLCXX MAKEFLAGS=$FLAGS \
-# -    ./configure --disable-shared
-# +./configure CC=afl-clang-fast CXX=afl-clang-fast \
-# +    CFLAGS='$FLAGS' CXXFLAGS='$FLAGS' \
-# +    --enable-static
-#
-# ./configure CC=$AFLCC CXX=$AFLCXX \
-#     CFLAGS='$FLAGS' CXXFLAGS='$FLAGS' \
-#     --enable-static
-
+# FLAGS='-fsanitize=address,undefined -ggdb'
+FLAGS=
 export CFLAGS=$FLAGS
 export CXXFLAGS=$FLAGS
 
-./build/autogen.sh
-echo "- configuring build system"
-export CC=$AFLCC
-export CXX=$AFLCXX
+if [ ! -f ./.libs/libarchive.a ]; then
+    ./build/autogen.sh
+    echo "- configuring build system"
+    export CC=$AFLCC
+    export CXX=$AFLCXX
 
-./configure --enable-static
+    ./configure --enable-static
 
-echo "- building libarchive"
-make -j$(nproc)
+    echo "- building libarchive"
+    make -j$(nproc)
+fi
 
 echo "- building harness with target"
 $AFLCC ./fuzzing/harness.c ./.libs/libarchive.a \
