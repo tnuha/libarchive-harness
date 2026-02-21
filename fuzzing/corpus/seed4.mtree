@@ -1,0 +1,8 @@
+#	   user: ash
+#	machine: giratina
+#	   tree: /home/ash/Projects/school/UofU-fuzzing/targets/libarchive-harness/fuzzing/corpus
+#	   date: Fri Feb 20 15:51:10 2026
+
+# .
+/set type=file uid=1000 gid=1000 mode=0664 nlink=1 flags=none
+.               type=dir mode=0775 nlink=2 time=1771627870.594403890
