@@ -5,9 +5,7 @@ sleep 0.5s
 
 AFLCC=afl-clang-fast
 AFLCXX=afl-clang-fast++
-# FLAGS='-g -fsanitize=address'
-# FLAGS='fsanitize=undefined'
-# FLAGS='-fsanitize=address,undefined -ggdb'
+# FLAGS='-fsanitize=address'
 FLAGS=
 export CFLAGS=$FLAGS
 export CXXFLAGS=$FLAGS
@@ -25,7 +23,8 @@ if [ ! -f ./.libs/libarchive.a ]; then
 fi
 
 echo "- building harness with target"
-$AFLCC ./fuzzing/harness.c ./.libs/libarchive.a \
+$AFLCC -Wall -Weverything \
+     ./fuzzing/harness.c ./.libs/libarchive.a \
     -fsanitize=fuzzer $FLAGS \
     -I ./libarchive \
     -o ./fuzzing/harness
